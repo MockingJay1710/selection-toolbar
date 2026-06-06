@@ -1,92 +1,138 @@
-# Obsidian Sample Plugin
+# Selection Toolbar
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Selection Toolbar adds a compact floating toolbar to Obsidian whenever text is selected in the Markdown editor. Use it to format Markdown, convert selected lines into blocks or lists, and extract selected text into a new note without breaking your writing flow.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+- Floating toolbar that appears only when editor text is selected.
+- Inline formatting for bold, italic, underline, strikethrough, highlight, inline code, wikilinks, and Markdown links.
+- Block formatting for quotes, bullet lists, numbered lists, task lists, fenced code blocks, and callouts.
+- Text transforms for uppercase, lowercase, and title case.
+- Extract selected text into a new note and replace the selection with a wikilink.
+- Keyboard-bindable commands for every toolbar action.
+- Blank-line-aware formatting: paragraphs separated by blank lines are formatted independently, while soft line breaks inside a paragraph stay together.
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+## Usage
 
-## First time developing plugins?
+Select text in a Markdown note. The toolbar appears near the selection with quick actions:
 
-Quick starting guide for new plugin devs:
+- **B**: bold
+- **I**: italic
+- **U**: underline
+- **S**: strikethrough
+- **H**: highlight
+- **`**: inline code
+- **[[**: wikilink
+- **Link**: Markdown link
+- **...**: more actions
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+The **...** menu contains block, callout, case conversion, and extract-to-note actions.
 
-## Releasing new releases
+## Commands
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+All actions are registered as Obsidian commands so they can be assigned keyboard shortcuts in **Settings -> Hotkeys**.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+- Format selection: bold
+- Format selection: italic
+- Format selection: underline
+- Format selection: strikethrough
+- Format selection: highlight
+- Format selection: inline code
+- Format selection: wikilink
+- Format selection: link
+- Format selection: comment
+- Format selection: quote block
+- Format selection: bullet list
+- Format selection: numbered list
+- Format selection: task list
+- Format selection: code block
+- Format selection: note callout
+- Format selection: tip callout
+- Format selection: warning callout
+- Format selection: uppercase
+- Format selection: lowercase
+- Format selection: title case
+- Extract selection to note
 
-## Adding your plugin to the community plugin list
+## Notes On Formatting
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+Selection Toolbar uses standard Markdown where possible.
 
-## How to use
+- Underline uses HTML: `<u>selected text</u>`.
+- Highlight uses Obsidian Markdown: `==selected text==`.
+- Comments use Obsidian Markdown comments: `%%selected text%%`.
+- Callouts use Obsidian callout syntax, such as `> [!note]`.
 
-- Clone this repo.
-- Make sure your NodeJS is at least v18 (`node --version`).
-- `npm i` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+For selections with blank lines, inline wrappers are applied to each paragraph-like block instead of wrapping the whole selection once.
 
-## Manually installing the plugin
+## Installation
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+### Community Plugin Installation
 
-## Improve code quality with eslint
+After the plugin is published to the Obsidian community plugin directory:
 
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+1. Open **Settings -> Community plugins**.
+2. Select **Browse**.
+3. Search for **Selection Toolbar**.
+4. Select **Install**.
+5. Enable the plugin.
 
-## Funding URL
+### Manual Installation
 
-You can include funding URLs where people who use your plugin can financially support it.
+Download the release assets and place them in your vault at:
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-	"fundingUrl": "https://buymeacoffee.com"
-}
+```text
+<Vault>/.obsidian/plugins/selection-toolbar/
 ```
 
-If you have multiple URLs, you can also do:
+Required files:
 
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
+- `main.js`
+- `manifest.json`
+- `styles.css`
+
+Reload Obsidian and enable **Selection Toolbar** in **Settings -> Community plugins**.
+
+## Development
+
+This plugin uses TypeScript, npm, and esbuild.
+
+```bash
+npm install
+npm run dev
 ```
 
-## API Documentation
+Production build:
 
-See https://docs.obsidian.md
+```bash
+npm run build
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+## Release Checklist
+
+1. Update `version` in `manifest.json`.
+2. Update `versions.json` with the plugin version and minimum Obsidian version.
+3. Run `npm run build`.
+4. Create a GitHub release with a tag that exactly matches the version, with no leading `v`.
+5. Attach `manifest.json`, `main.js`, and `styles.css` as release assets.
+
+## Privacy
+
+Selection Toolbar works locally inside Obsidian. It does not make network requests, collect analytics, transmit vault content, or use external services.
+
+The extract-to-note action creates Markdown files inside your vault only when you explicitly run that action.
+
+## Compatibility
+
+- Minimum Obsidian version: `1.0.0`
+- Desktop and mobile supported
+
+## License
+
+This project is licensed under the 0BSD license.
