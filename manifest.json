@@ -1,7 +1,7 @@
 {
 	"id": "selection-toolbar",
 	"name": "Selection Toolbar",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"minAppVersion": "1.1.0",
 	"description": "Format and transform selected Markdown from a floating toolbar and bindable commands.",
 	"author": "Otto",
