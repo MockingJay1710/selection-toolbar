@@ -130,7 +130,7 @@ The extract-to-note action creates Markdown files inside your vault only when yo
 
 ## Compatibility
 
-- Minimum Obsidian version: `1.0.0`
+- Minimum Obsidian version: `1.1.0`
 - Desktop and mobile supported
 
 ## License
