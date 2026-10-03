@@ -20,16 +20,26 @@ import {
 	uppercaseSelection,
 } from '../formatting/markdown-formatting';
 import { extractSelectionToNote } from '../notes/extract-selection';
+import type { ToolbarButtonId, ToolbarPosition } from '../settings';
 import { promptForUrl } from './url-prompt-modal';
+
+export interface FloatingFormatToolbarOptions {
+	isVisible: () => boolean;
+	getPosition: () => ToolbarPosition;
+	getButtons: () => ToolbarButtonId[];
+}
 
 export class FloatingFormatToolbar {
 	private el: HTMLElement;
 	private plugin: Plugin;
+	private options: FloatingFormatToolbarOptions;
 	private lastEditor: Editor | null = null;
 	private frame: number | null = null;
+	private buttons = new Map<ToolbarButtonId, HTMLElement>();
 
-	constructor(plugin: Plugin) {
+	constructor(plugin: Plugin, options: FloatingFormatToolbarOptions) {
 		this.plugin = plugin;
+		this.options = options;
 		this.el = activeDocument.body.createDiv({
 			cls: 'selection-toolbar',
 		});
@@ -40,30 +50,47 @@ export class FloatingFormatToolbar {
 	}
 
 	private buildButtons() {
-		this.addButton('B', 'Bold', () => this.run(toggleBold), 'is-bold');
-		this.addButton('I', 'Italic', () => this.run(toggleItalic), 'is-italic');
+		this.addButton('bold', 'B', 'Bold', () => this.run(toggleBold), 'is-bold');
 		this.addButton(
+			'italic',
+			'I',
+			'Italic',
+			() => this.run(toggleItalic),
+			'is-italic',
+		);
+		this.addButton(
+			'underline',
 			'U',
 			'Underline',
 			() => this.run(toggleUnderline),
 			'is-underlined',
 		);
 		this.addButton(
+			'strikethrough',
 			'S',
 			'Strikethrough',
 			() => this.run(toggleStrikethrough),
 			'is-struck',
 		);
-		this.addButton('H', 'Highlight', () => this.run(toggleHighlight));
-		this.addButton('`', 'Inline code', () => this.run(toggleInlineCode));
-		this.addButton('[[', 'Wikilink', () => this.run(toggleWikilink));
-		this.addButton('Link', 'Markdown link', () => this.promptForLink());
-		this.addButton('...', 'More actions', (event) =>
+		this.addButton('highlight', 'H', 'Highlight', () =>
+			this.run(toggleHighlight),
+		);
+		this.addButton('inline-code', '`', 'Inline code', () =>
+			this.run(toggleInlineCode),
+		);
+		this.addButton('wikilink', '[[', 'Wikilink', () =>
+			this.run(toggleWikilink),
+		);
+		this.addButton('link', 'Link', 'Markdown link', () =>
+			this.promptForLink(),
+		);
+		this.addButton('more', '...', 'More actions', (event) =>
 			this.showMoreActions(event),
 		);
 	}
 
 	private addButton(
+		id: ToolbarButtonId,
 		label: string,
 		ariaLabel: string,
 		callback: (event: MouseEvent) => void,
@@ -72,6 +99,7 @@ export class FloatingFormatToolbar {
 		const button = this.el.createEl('button', { text: label });
 		button.ariaLabel = ariaLabel;
 		button.addClass('selection-toolbar-button');
+		this.buttons.set(id, button);
 		if (modifierClass) {
 			button.addClass(modifierClass);
 		}
@@ -214,6 +242,11 @@ export class FloatingFormatToolbar {
 	}
 
 	private update() {
+		if (!this.options.isVisible() || !this.applyButtonVisibility()) {
+			this.hide();
+			return;
+		}
+
 		const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
 		const editor = view?.editor;
 
@@ -235,8 +268,22 @@ export class FloatingFormatToolbar {
 
 		this.lastEditor = editor;
 		this.el.show();
+		const isBelow = this.options.getPosition() === 'below';
+
+		this.el.toggleClass('is-below', isBelow);
 		this.el.style.left = `${rect.left + rect.width / 2}px`;
-		this.el.style.top = `${rect.top}px`;
+		this.el.style.top = `${isBelow ? rect.bottom : rect.top}px`;
+	}
+
+	/** Shows only the enabled buttons; returns false when none are enabled. */
+	private applyButtonVisibility() {
+		const enabled = this.options.getButtons();
+
+		for (const [id, button] of this.buttons) {
+			button.toggle(enabled.includes(id));
+		}
+
+		return enabled.length > 0;
 	}
 
 	private run(formatter: (editor: Editor) => void | Promise<void>) {
